@@ -5,7 +5,9 @@ var db = mongojs('meandb', ['todos']);
 
 /* GET All Todos */
 router.get('/todo', function(req, res, next) {
-    db.todos.find().sort({initialDate: 1}, function(err, todos) {
+    db.todos.find().sort({
+        initialDate: 1
+    }, function(err, todos) {
         if (err) {
             res.send(err);
         } else {
@@ -34,9 +36,7 @@ router.post('/todo', function(req, res, next) {
 
     if (todo.body) {
         res.status(400);
-        res.json({
-            "error": "Invalid Data"
-        });
+        res.json({"error": "Invalid Data"});
     } else {
         db.todos.save(todo, function(err, result) {
             if (err) {
@@ -51,24 +51,26 @@ router.post('/todo', function(req, res, next) {
 /* PUT/UPDATE a Todo */
 router.put('/todo/:id', function(req, res, next) {
     var todo = req.body;
-    var updObj = {};
 
-    if (todo.body) {
-        updObj.isCompleted = todo.isCompleted;
-    }
-    if (todo.text) {
-        updObj.text = todo.text;
-    }
-
-    if (!updObj) {
+    if (!todo) {
         res.status(400);
-        res.json({
-            "error": "Invalid Data"
-        });
+        res.json({"error": "Invalid Data"});
     } else {
-        db.todos.update({
+        var update = {
+            $set: {
+                name: todo.name,
+                initialDate: todo.initialDate,
+                finalDate: todo.finalDate
+            }
+        }
+
+        console.log(update);
+
+        var query = {
             _id: mongojs.ObjectId(req.params.id)
-        }, updObj, {}, function(err, result) {
+        }
+
+        db.todos.update(query, update, function(err, result) {
             if (err) {
                 res.send(err);
             } else {
@@ -76,8 +78,6 @@ router.put('/todo/:id', function(req, res, next) {
             }
         });
     }
-
-
 });
 
 /* DELETE a Todo */

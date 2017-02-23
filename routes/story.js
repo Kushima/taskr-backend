@@ -58,10 +58,18 @@ router.put('/story/:id', function(req, res, next) {
             "error": "Invalid Data"
         });
     } else {
+      if (story.name) {
         var update = {
-          // SET model = 'iPad 3'
+          $set: {
+            name: story.name,
+            order: story.order,
+            _sprintId: story._sprintId }
+          };
+      } else {
+        var update = {
           $set: { order: story.order, _sprintId: story._sprintId }
-        };
+        }
+      }
         console.log(update);
 
         var query = {
